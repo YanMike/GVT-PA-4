@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css" >
 </head>
 <html>
-<body onload="">
+<body>
 
 <div>
     Graphical Visualisation Technologies <br>
@@ -20,16 +20,15 @@
     <button onclick="startWebGL('funnel')">Funnel</button>
     <button onclick="startWebGL('ei')">Ei</button>
     <button onclick="startWebGL('pseudosphere')">Pseudosphere</button>
-    <button onclick="startWebGL('test')">Test</button>
-    <button class="btn-bar" onclick="switchView()">top view</button>
-    <button class="btn-bar" onclick="switchCulling()">Back Culling</button>
+    <button onclick="startWebGL('torus')">Torus</button>
 </div>
 <canvas id="canvas" width="600" height="600"></canvas>
 
-<!--<script src="js/script.js"></script>-->
 <script src="js/kuf-script.js"></script>
+<script src="js/createVertexData.js"></script>
 
-<!--<script id="shader-vs" type="x-shader/x-vertex">
+
+<script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 pos;
             attribute vec4 col;
             varying vec4 color;
@@ -45,7 +44,7 @@
     void main() {
         gl_FragColor = color;
     }
-</script>-->
+</script>
 
 </body>
 </html>
