@@ -1,3 +1,10 @@
+/*
+ * Author: Yannick Bachteler
+ * Version 0.1, 13.05.2015: initial setup
+ * Version 0.2, 15.05.2015: parametric drawings
+ * Version 1.0, DD.MM.YYYY: colored and final
+ */
+
 function startWebGL(model) {
 // Get the WebGL context.
     var canvas = document.getElementById('canvas');
