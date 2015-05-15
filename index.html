@@ -1,0 +1,52 @@
+<!--
+    Author: Yannick Bachteler
+    Version 1.0, 05.05.2015: shader code for "colored" added
+ -->
+
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="style.css" >
+</head>
+<html>
+<body onload="startWebGL()">
+
+<div>
+    Graphical Visualisation Technologies <br>
+    Projektaufgabe 4: Farbige Fl&auml;chen<br>
+    &copy; 2015 - Yannick Bachteler
+</div>
+
+<div style="margin: 20px 0px;">
+    <button onclick="startWebGL('funnel')">Funnel</button>
+    <button onclick="startWebGL('ei')">Ei</button>
+    <button onclick="startWebGL('pseudosphere')">Pseudosphere</button>
+    <button onclick="startWebGL('test')">Test</button>
+    <button class="btn-bar" onclick="switchView()">top view</button>
+    <button class="btn-bar" onclick="switchCulling()">Back Culling</button>
+</div>
+<canvas id="canvas" width="600" height="600"></canvas>
+
+
+
+<script src="js/script.js"></script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 pos;
+            attribute vec4 col;
+            varying vec4 color;
+            void main(){
+                color = col;
+                gl_Position = vec4(pos, 1);
+            }
+        </script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 color;
+    void main() {
+        gl_FragColor = color;
+    }
+</script>
+
+</body>
+</html>
