@@ -6,7 +6,7 @@
  */
 
 function startWebGL(model) {
-// Get the WebGL context.
+    // Get the WebGL context.
     var canvas = document.getElementById('canvas');
     var gl = canvas.getContext('experimental-webgl');
 
@@ -57,7 +57,7 @@ function startWebGL(model) {
 
     // Vertex data.
     // Positions, Index data.
-    var vertices, indicesLines, indicesTris, colorTris;
+    var vertices, indicesLines, indicesTris, colorTris, colorLines;
     // Fill the data arrays.
     if(model == "funnel") {
         createVertexDataFunnel();
@@ -84,16 +84,17 @@ function startWebGL(model) {
     gl.enableVertexAttribArray(posAttrib);
 
     // Setup constant color.
-    /*var colAttrib = gl.getAttribLocation(prog, 'col');*/
-
-    // Setup color vertex buffer object.
-    var vboCol = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vboCol);
-    gl.bufferData(gl.ARRAY_BUFFER, colorTris, gl.STATIC_DRAW);
-    // Bind vertex buffer to attribute variable.
     var colAttrib = gl.getAttribLocation(prog, 'col');
+    // Bind vertex buffer to attribute variable.
+    /*var colAttrib = gl.getAttribLocation(prog, 'col');
     gl.vertexAttribPointer(colAttrib, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(colAttrib);
+    gl.enableVertexAttribArray(colAttrib);*/
+
+    /*// Setup color vertex buffer object.
+    var colTris = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colTris);
+    gl.bufferData(gl.ARRAY_BUFFER, colorTris, gl.STATIC_DRAW);*/
+
 
     // Setup lines index buffer object.
     var iboLines = gl.createBuffer();
@@ -102,6 +103,12 @@ function startWebGL(model) {
         indicesLines, gl.STATIC_DRAW);
     iboLines.numberOfElements = indicesLines.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    /*// Setup color vertex buffer object.
+    var colLines = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colLines);
+    gl.bufferData(gl.ARRAY_BUFFER, colorLines, gl.STATIC_DRAW);*/
+
 
     // Setup tris index buffer object.
     var iboTris = gl.createBuffer();
@@ -112,17 +119,21 @@ function startWebGL(model) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     // Clear framebuffer and render primitives.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Setup rendering tris.
-    /*gl.vertexAttrib4f(colAttrib, 0, 1, 1, 1);*/
+    gl.vertexAttrib4f(colAttrib, 0, 1, 1, 1);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboTris);
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, colTris);
+    gl.vertexAttribPointer(colAttrib, 4, gl.FLOAT, false, 0, 0);*/
     gl.drawElements(gl.TRIANGLES,
         iboTris.numberOfElements, gl.UNSIGNED_SHORT, 0);
 
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Setup rendering lines.
-    gl.vertexAttrib4f(colAttrib, 0, 0, 0, 1);
+    gl.vertexAttrib4f(colAttrib, 0,0,0,.5);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iboLines);
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, colLines);
+    gl.vertexAttribPointer(colAttrib, 4, gl.FLOAT, false, 0, 0);*/
     gl.drawElements(gl.LINES,
         iboLines.numberOfElements, gl.UNSIGNED_SHORT, 0);
 
@@ -141,17 +152,14 @@ function startWebGL(model) {
         var dv = (vmax-vmin)/m; // (maxV-minV)/m; // 1/m;
 
         // Counter for entries in index array.
-        var iLines = 0;
-        var iTris = 0;
-        var iColor = 0;
+        var iLines  = 0;
+        var iTris   = 0;
 
         // Positions.
         vertices = new Float32Array(3 * (n+1) * (m+1));
         // Index data.
         indicesLines = new Uint16Array(2 * 2 * n * m);
         indicesTris  = new Uint16Array(3 * 2 * n * m);
-        // Colors as rgba.
-        colorTris = new Float32Array(3 * 2 * n * m);
 
         // Loop angle t.
         for(var i = 0, u = 0; i <= n; i++, u += du) {
@@ -168,6 +176,7 @@ function startWebGL(model) {
                 vertices[iVertex * 3] = x;
                 vertices[iVertex * 3 + 1] = y;
                 vertices[iVertex * 3 + 2] = z;
+
 
                 // Set index.
                 // Line on beam.
@@ -191,17 +200,11 @@ function startWebGL(model) {
                     indicesTris[iTris++] = iVertex - 1;
                     indicesTris[iTris++] = iVertex - (m+1) - 1;
                     indicesTris[iTris++] = iVertex - (m+1);
-
-                    colorTris[iColor++] = iVertex;
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
-                    //
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1) - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
                 }
             }
         }
+        console.log("Tris: "  + indicesTris  + " " + indicesTris.length);
+        console.log("Lines: " + indicesLines + " " + indicesLines.length);
     }
 
     function createVertexDataEi(){
@@ -218,15 +221,12 @@ function startWebGL(model) {
         // Index data.
         indicesLines = new Uint16Array(2 * 2 * n * m);
         indicesTris  = new Uint16Array(3 * 2 * n * m);
-        // Colors as rgba.
-        colorTris = new Float32Array(3 * 2 * n * m);
 
         var du = (umax-umin)/n; // (maxU-minU)/n; // 2*Math.PI/n;
         var dv = (vmax-vmin)/m; // (maxV-minV)/m; // 1/m;
         // Counter for entries in index array.
         var iLines = 0;
         var iTris = 0;
-        var iColor = 0;
 
         var a = 2;
         var b = 1;
@@ -270,14 +270,6 @@ function startWebGL(model) {
                     indicesTris[iTris++] = iVertex - 1;
                     indicesTris[iTris++] = iVertex - (m+1) - 1;
                     indicesTris[iTris++] = iVertex - (m+1);
-
-                    colorTris[iColor++] = iVertex;
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
-                    //
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1) - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
                 }
             }
         }
@@ -297,15 +289,12 @@ function startWebGL(model) {
         // Index data.
         indicesLines = new Uint16Array(2 * 2 * n * m);
         indicesTris  = new Uint16Array(3 * 2 * n * m);
-        // Colors as rgba.
-        colorTris = new Float32Array(3 * 2 * n * m);
 
         var du = (umax-umin)/n;
         var dv = (vmax-vmin)/m;
         // Counter for entries in index array.
         var iLines = 0;
         var iTris = 0;
-        var iColor = 0;
 
         // Loop angle t.
         for(var i = 0, u = 0; i <= n; i++, u += du) {
@@ -349,14 +338,6 @@ function startWebGL(model) {
                     indicesTris[iTris++] = iVertex - 1;
                     indicesTris[iTris++] = iVertex - (m+1) - 1;
                     indicesTris[iTris++] = iVertex - (m+1);
-
-                    colorTris[iColor++] = iVertex;
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
-                    //
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1) - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
                 }
             }
         }
@@ -376,15 +357,13 @@ function startWebGL(model) {
         // Index data.
         indicesLines = new Uint16Array(2 * 2 * n * m);
         indicesTris  = new Uint16Array(3 * 2 * n * m);
-        // Colors as rgba.
-        colorTris = new Float32Array(3 * 2 * n * m);
 
         var du = (umax-umin)/n; // (maxU-minU)/n; // 2*Math.PI/n;
         var dv = (vmax-vmin)/m; // (maxV-minV)/m; // 1/m;
         // Counter for entries in index array.
         var iLines = 0;
         var iTris = 0;
-        var iColor = 0;
+
 
         // Loop angle t.
         for(var i = 0, u = 0; i <= n; i++, u += du) {
@@ -431,14 +410,6 @@ function startWebGL(model) {
                     indicesTris[iTris++] = iVertex - 1;
                     indicesTris[iTris++] = iVertex - (m+1) - 1;
                     indicesTris[iTris++] = iVertex - (m+1);
-
-                    colorTris[iColor++] = iVertex;
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
-                    //
-                    colorTris[iColor++] = iVertex - 1;
-                    colorTris[iColor++] = iVertex - (m+1) - 1;
-                    colorTris[iColor++] = iVertex - (m+1);
                 }
             }
         }
